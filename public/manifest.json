@@ -1,0 +1,17 @@
+{
+    "name": "NeuralGrooves",
+    "short_name": "Grooves",
+    "description": "Tu estudio de música IA",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0a0a1a",
+    "theme_color": "#9d4ede",
+    "icons": [
+        {
+            "src": "/app_icon_neuralgrooves.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
