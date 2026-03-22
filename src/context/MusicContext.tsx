@@ -32,6 +32,8 @@ interface MusicContextType {
     session: Session | null;
     isAuthModalOpen: boolean;
     setIsAuthModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    playNextTrack: () => void;
+    playPrevTrack: () => void;
 }
 
 const MusicContext = createContext<MusicContextType | undefined>(undefined);
@@ -124,12 +126,17 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
             });
 
             const sortedTracks = Array.from(finalMap.values()).sort((a, b) => {
-                // If ID is string (Date.now()), sort descending (newest first)
-                if (typeof a.id === 'string' && typeof b.id === 'string') {
-                    return b.id.localeCompare(a.id);
-                }
-                // Fallback to plays or default
-                return (b.plays || 0) - (a.plays || 0);
+                const artistA = (a.artist || "Unknown").toLowerCase();
+                const artistB = (b.artist || "Unknown").toLowerCase();
+                if (artistA < artistB) return -1;
+                if (artistA > artistB) return 1;
+                
+                const titleA = (a.title || "Untitled").toLowerCase();
+                const titleB = (b.title || "Untitled").toLowerCase();
+                if (titleA < titleB) return -1;
+                if (titleA > titleB) return 1;
+                
+                return 0;
             });
 
             setTracks(sortedTracks);
@@ -231,9 +238,33 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('neural_grooves_tracks', JSON.stringify(updatedLocal));
     };
 
+    const playNextTrack = () => {
+        if (!currentTrack) return;
+        const currentIndex = tracks.findIndex(t => t.id === currentTrack.id);
+        if (currentIndex !== -1 && currentIndex < tracks.length - 1) {
+            setCurrentTrack(tracks[currentIndex + 1]);
+            setIsPlaying(true);
+        } else if (tracks.length > 0) {
+            setCurrentTrack(tracks[0]);
+            setIsPlaying(true);
+        }
+    };
+
+    const playPrevTrack = () => {
+        if (!currentTrack) return;
+        const currentIndex = tracks.findIndex(t => t.id === currentTrack.id);
+        if (currentIndex > 0) {
+            setCurrentTrack(tracks[currentIndex - 1]);
+            setIsPlaying(true);
+        } else if (tracks.length > 0) {
+            setCurrentTrack(tracks[tracks.length - 1]);
+            setIsPlaying(true);
+        }
+    };
+
     return (
         <MusicContext.Provider value={{
-            tracks, addTrack, deleteTrack, currentTrack, setCurrentTrack, isPlaying, setIsPlaying, isAdmin, setIsAdmin, incrementPlays, user, session, isAuthModalOpen, setIsAuthModalOpen
+            tracks, addTrack, deleteTrack, currentTrack, setCurrentTrack, isPlaying, setIsPlaying, isAdmin, setIsAdmin, incrementPlays, user, session, isAuthModalOpen, setIsAuthModalOpen, playNextTrack, playPrevTrack
         }}>
             {children}
         </MusicContext.Provider>

@@ -5,7 +5,7 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, Share2, Heart, Music } fro
 import { useMusic } from '@/context/MusicContext';
 
 export default function AudioPlayer() {
-    const { currentTrack, isPlaying, setIsPlaying, incrementPlays } = useMusic();
+    const { currentTrack, isPlaying, setIsPlaying, incrementPlays, playNextTrack, playPrevTrack } = useMusic();
     const audioRef = useRef<HTMLAudioElement>(null);
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -78,7 +78,7 @@ export default function AudioPlayer() {
                 src={currentTrack.audioUrl}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
-                onEnded={() => setIsPlaying(false)}
+                onEnded={playNextTrack}
             />
 
             {/* Track Info - Left */}
@@ -104,14 +104,14 @@ export default function AudioPlayer() {
             {/* Controls Center */}
             <div className="controls-center flex flex-col items-center gap-1.5 w-1/3 max-w-[600px]">
                 <div className="flex items-center gap-6">
-                    <button className="text-white/50 hover:text-white transition-colors hover:scale-110"><SkipBack size={18} /></button>
+                    <button onClick={playPrevTrack} className="text-white/50 hover:text-white transition-colors hover:scale-110"><SkipBack size={18} /></button>
                     <button
                         onClick={togglePlay}
                         className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--accent-page)] to-pink-500 flex-center text-white shadow-[0_0_25px_rgba(var(--accent-page-rgb),0.4)] hover:scale-105 transition-all active:scale-95 border border-white/20"
                     >
                         {isPlaying ? <Pause size={20} fill="white" /> : <Play size={20} fill="white" className="ml-1" />}
                     </button>
-                    <button className="text-white/50 hover:text-white transition-colors hover:scale-110"><SkipForward size={18} /></button>
+                    <button onClick={playNextTrack} className="text-white/50 hover:text-white transition-colors hover:scale-110"><SkipForward size={18} /></button>
                 </div>
                 <div className="w-full flex items-center gap-3 text-[10px] text-white/40 font-bold font-mono tabular-nums">
                     <span className="w-8 text-right">{formatTime(progress)}</span>
