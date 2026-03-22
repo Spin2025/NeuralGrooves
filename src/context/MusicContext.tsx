@@ -108,8 +108,10 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
                 const safeTitle = t.title || "Untitled";
                 const safeArtist = t.artist || "Unknown Artist";
                 const key = `${safeTitle.toLowerCase().trim()}|${safeArtist.toLowerCase().trim()}`;
-                const localPlays = globalPlaysMap[key] || 0;
-                const currentPlays = Math.max(t.plays || 0, localPlays);
+                
+                // Si es un track real de la base de datos (UUID), confiamos 100% en la nube
+                const isRealDBTrack = typeof t.id === 'string' && t.id.length > 20;
+                const currentPlays = isRealDBTrack ? (t.plays || 0) : Math.max(t.plays || 0, globalPlaysMap[key] || 0);
 
                 if (!finalMap.has(key)) {
                     finalMap.set(key, { ...t, plays: currentPlays });
@@ -117,7 +119,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
                     const existing = finalMap.get(key);
                     finalMap.set(key, {
                         ...existing,
-                        plays: Math.max(existing.plays, currentPlays),
+                        plays: isRealDBTrack ? currentPlays : Math.max(existing.plays, currentPlays),
                         audioUrl: t.audioUrl || existing.audioUrl,
                         cover: t.cover || existing.cover,
                         id: t.id || existing.id
